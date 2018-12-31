@@ -42,5 +42,28 @@ CHIP ALU {
         ng; // 1 if (out < 0),  0 otherwise
 
     PARTS:
-   // Put you code here:
+    //Prep x with zx, then with nx, to get nxout
+    Mux16(a[0..15]=x, b[0..15]=false, sel=zx, out[0..15]=zxout);
+    Not16(in[0..15]=zxout, out[0..15]=notx);
+    Mux16(a[0..15]=zxout, b[0..15]=notx, sel=nx, out[0..15]=nxout);
+
+    //Prep y with zy, then with ny, to get nyout
+    Mux16(a[0..15]=y, b[0..15]=false, sel=zy, out[0..15]=zyout);
+    Not16(in[0..15]=zyout, out[0..15]=noty);
+    Mux16(a[0..15]=zyout, b[0..15]=noty, sel=ny, out[0..15]=nyout);
+
+    //Create wires for x+y, x and y, as well as prepared by the f func
+    Add16(a[0..15]=nxout, b[0..15]=nyout, out[0..15]=xplusy);
+    And16(a[0..15]=nxout, b[0..15]=nyout, out[0..15]=xandy);
+    Mux16(a[0..15]=xandy, b[0..15]=xplusy, sel=f, out[0..15]=fout);
+
+    //Prep a not of fout
+    Not16(in[0..15]=fout, out[0..15]=notfout);
+
+    Mux16(a[0..15]=fout, b[0..15]=notfout, sel=no, out[0..7]=lfout, out[8..15]=hfout, out[15]=ng, out=out);
+
+    Or8Way(in[0..7]=lfout, out=lout);
+    Or8Way(in[0..7]=hfout, out=hout);
+    Or(a=lout, b=hout, out=forout);
+    Not(in=forout, out=zr);
 }
