@@ -1,3 +1,4 @@
 Tools/
 *.out
 /tools/HardwareSimulator.sh
+/tools/.DS_Store
